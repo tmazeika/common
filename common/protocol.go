@@ -12,10 +12,11 @@ const (
     PuncherPong        ProtocolMessage = 0x01
     PuncherReady       ProtocolMessage = 0x02
     PuncherNotReady    ProtocolMessage = 0x03
-    DownloadClientType ProtocolMessage = 0x04
-    UploadClientType   ProtocolMessage = 0x05
-    ChecksumMismatch   ProtocolMessage = 0x06
-    ChecksumMatch      ProtocolMessage = 0x07
+    PuncherEndPing     ProtocolMessage = 0x04
+    DownloadClientType ProtocolMessage = 0x05
+    UploadClientType   ProtocolMessage = 0x06
+    ChecksumMismatch   ProtocolMessage = 0x07
+    ChecksumMatch      ProtocolMessage = 0x08
 )
 
 func Mtob(msg ProtocolMessage) []byte {
