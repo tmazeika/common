@@ -8,8 +8,10 @@ const (
 type ProtocolMessage byte
 
 const (
-    DownloadClientType ProtocolMessage = 0x00
-    UploadClientType   ProtocolMessage = 0x01
-    ChecksumMismatch   ProtocolMessage = 0x02
-    ChecksumMatch      ProtocolMessage = 0x03
+    PuncherPing        ProtocolMessage = 0x00
+    PuncherPong        ProtocolMessage = 0x01
+    DownloadClientType ProtocolMessage = 0x02
+    UploadClientType   ProtocolMessage = 0x03
+    ChecksumMismatch   ProtocolMessage = 0x04
+    ChecksumMatch      ProtocolMessage = 0x05
 )
