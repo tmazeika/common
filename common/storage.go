@@ -17,7 +17,7 @@ type Storage struct {
     Config    Config
 }
 
-func (s Storage) Dir() (string, error) {
+func (s Storage) dir() (string, error) {
     const DefDirName = ".transhift"
 
     if len(s.CustomDir) == 0 {
@@ -27,15 +27,15 @@ func (s Storage) Dir() (string, error) {
             return "", err
         }
 
-        return GetDir(filepath.Join(user.HomeDir, DefDirName))
+        return getDir(filepath.Join(user.HomeDir, DefDirName))
     } else {
-        return GetDir(s.CustomDir)
+        return getDir(s.CustomDir)
     }
 }
 
-func (s Storage) ConfigFile() (*os.File, error) {
+func (s Storage) configFile() (*os.File, error) {
     const FileName = "config.json"
-    dir, err := s.Dir()
+    dir, err := s.dir()
 
     if err != nil {
         return nil, err
@@ -43,7 +43,7 @@ func (s Storage) ConfigFile() (*os.File, error) {
 
     filePath := filepath.Join(dir, FileName)
 
-    if ! FileExists(filePath, false) {
+    if ! fileExists(filePath, false) {
         data, err := json.MarshalIndent(&s.Config, "", "  ")
 
         if err != nil {
@@ -57,11 +57,11 @@ func (s Storage) ConfigFile() (*os.File, error) {
         }
     }
 
-    return GetFile(filePath)
+    return getFile(filePath)
 }
 
 func (s *Storage) LoadConfig() error {
-    file, err := s.ConfigFile()
+    file, err := s.configFile()
 
     if err != nil {
         return err
@@ -73,7 +73,7 @@ func (s *Storage) LoadConfig() error {
 }
 
 func (s Storage) Certificate(certFileName, keyFileName string) (tls.Certificate, error) {
-    dir, err := s.Dir()
+    dir, err := s.dir()
 
     if err != nil {
         return tls.Certificate{}, err
@@ -82,10 +82,10 @@ func (s Storage) Certificate(certFileName, keyFileName string) (tls.Certificate,
     certFilePath := filepath.Join(dir, certFileName)
     keyFilePath := filepath.Join(dir, keyFileName)
 
-    if ! FileExists(certFilePath, false) || ! FileExists(keyFilePath, false) {
+    if ! fileExists(certFilePath, false) || ! fileExists(keyFilePath, false) {
         fmt.Print("Generating crypto... ")
 
-        keyData, certData, err := CreateCertificate()
+        keyData, certData, err := createCertificate()
 
         if err != nil {
             return tls.Certificate{}, err
@@ -109,16 +109,16 @@ func (s Storage) Certificate(certFileName, keyFileName string) (tls.Certificate,
     return tls.LoadX509KeyPair(certFilePath, keyFilePath)
 }
 
-func GetFile(path string) (*os.File, error) {
-    if FileExists(path, false) {
+func getFile(path string) (*os.File, error) {
+    if fileExists(path, false) {
         return os.Open(path)
     }
 
     return os.Create(path)
 }
 
-func GetDir(path string) (string, error) {
-    if FileExists(path, true) {
+func getDir(path string) (string, error) {
+    if fileExists(path, true) {
         return path, nil
     }
 
@@ -131,7 +131,7 @@ func GetDir(path string) (string, error) {
     return path, nil
 }
 
-func FileExists(path string, asDir bool) bool {
+func fileExists(path string, asDir bool) bool {
     info, err := os.Stat(path)
 
     if err != nil {

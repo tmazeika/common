@@ -32,7 +32,7 @@ func CalculateBytesHash(bytes []byte) ([]byte, error) {
     return hash.Sum(nil), nil
 }
 
-func CreateCertificate() (keyData []byte, certData []byte, err error) {
+func createCertificate() (keyData []byte, certData []byte, err error) {
     const RSABits = 4096
     key, err := rsa.GenerateKey(rand.Reader, RSABits)
 
