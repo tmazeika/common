@@ -103,6 +103,28 @@ type Message struct {
     body   []byte
 }
 
+func (m Message) MarshalBinary() (data []byte, err error) {
+    var buff bytes.Buffer
+
+    buff.WriteByte(byte(m.packet))
+
+    if ! ArrayContains(bodilessPackets, m.packet) {
+        if _, known := fixedLengthPackets[m.packet]; ! known {
+            bodyLen := len(m.body)
+
+            if bodyLen > 0xFF {
+                return nil, fmt.Errorf("length of body cannot fit in 1 byte (got %d bytes)", bodyLen)
+            }
+
+            buff.WriteByte(byte(len(m.body)))
+        }
+
+        buff.Write(m.body)
+    }
+
+    return buff.Bytes(), nil
+}
+
 // MessageChannel returns a channel of Messages for the given Conn. Closes the
 // channel upon error.
 func MessageChannel(conn net.Conn) (ch chan Message) {
@@ -156,28 +178,6 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
     }()
 
     return
-}
-
-func WriteMessage(msg Message) ([]byte, error) {
-    var buff bytes.Buffer
-
-    buff.WriteByte(byte(msg.packet))
-
-    if ! ArrayContains(bodilessPackets, msg.packet) {
-        if _, known := fixedLengthPackets[msg.packet]; ! known {
-            bodyLen := len(msg.body)
-
-            if bodyLen > 0xFF {
-                return nil, fmt.Errorf("length of body cannot fit in 1 byte (got %d bytes)", bodyLen)
-            }
-
-            buff.WriteByte(byte(len(msg.body)))
-        }
-
-        buff.Write(msg.body)
-    }
-
-    return buff.Bytes(), nil
 }
 
 func Mtob(msg Packet) []byte {
