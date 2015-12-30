@@ -104,7 +104,7 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
                 continue
             }
 
-            known, len := isKnownLength(packet)
+            len, known := knownLengthPackets[packet]
 
             if ! known {
                 lenBuff := make([]byte, 1)
@@ -142,14 +142,6 @@ func isBodiless(p Packet) bool {
     }
 
     return false
-}
-
-func isKnownLength(p Packet) (bool, uint8) {
-    if l, ok := knownLengthPackets[p]; ok {
-        return true, l
-    }
-
-    return false, 0
 }
 
 func Mtob(msg Packet) []byte {
