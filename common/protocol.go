@@ -10,8 +10,15 @@ const (
     UidLength = 16
 )
 
+// Packet is a description of the data sent from one endpoint to another.
 type Packet       byte
+
+// ClientType is a body of ClientType indicating the type of client connecting
+// to the puncher.
 type ClientType   byte
+
+// Verification is a body of Verification indicating the status of verification
+// for the received file (checksum verification).
 type Verification byte
 
 const (
@@ -23,7 +30,7 @@ const (
 
     // ClientType is sent from the uploader or downloader to the puncher
     // followed by a known length byte indicating the type of client
-    // (ClientType)
+    // (ClientType).
     ClientType           Packet       = 0x02
 
     // DownloaderClientType is a body of the ClientType Packet.
