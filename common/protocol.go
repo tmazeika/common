@@ -97,14 +97,19 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
                 continue
             }
 
-            lenBuff := make([]byte, 1)
+            known, len := isKnownLength(packet)
 
-            if _, err := conn.Read(lenBuff); err != nil {
-                fmt.Fprintf(os.Stderr, "Read error for '%s': %s", conn.RemoteAddr(), err)
-                return
+            if ! known {
+                lenBuff := make([]byte, 1)
+
+                if _, err := conn.Read(lenBuff); err != nil {
+                    fmt.Fprintf(os.Stderr, "Read error for '%s': %s", conn.RemoteAddr(), err)
+                    return
+                }
+
+                len = uint8(lenBuff[0])
             }
 
-            len := uint8(lenBuff[0])
             bodyBuff := make([]byte, len)
 
             if _, err := conn.Read(bodyBuff); err != nil {
@@ -130,6 +135,14 @@ func isBodiless(p Packet) bool {
     }
 
     return false
+}
+
+func isKnownLength(p Packet) (bool, uint8) {
+    if l, ok := knownLengthPackets[p]; ok {
+        return true, l
+    }
+
+    return false, 0
 }
 
 func Mtob(msg Packet) []byte {
