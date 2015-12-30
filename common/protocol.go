@@ -65,12 +65,15 @@ const (
 )
 
 var (
+    // bodilessPackets is the set of all Packets that do not have a body.
     bodilessPackets = []Packet{
         Ping,
         Pong,
     }
 
-    knownLengthPackets = map[Packet]uint8{
+    // fixedLengthPackets is the map of all Packets that have a fixed length
+    // body.
+    fixedLengthPackets = map[Packet]uint8{
         ClientType:   1,
         FileSize:     8,  // uint64
         FileHash:     32, // sha256
@@ -104,7 +107,7 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
                 continue
             }
 
-            len, known := knownLengthPackets[packet]
+            len, known := fixedLengthPackets[packet]
 
             if ! known {
                 lenBuff := make([]byte, 1)
