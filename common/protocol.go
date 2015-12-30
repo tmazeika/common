@@ -20,6 +20,10 @@ const (
     ChecksumStatus Packet = 0x04
 )
 
+var (
+    bodilessPackets = []Packet{Ping, Pong}
+)
+
 type Message struct {
     packet Packet
     body   []byte
@@ -38,6 +42,14 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
             }
 
             packet := Packet(packetBuff[0])
+
+            if isBodiless(packet) {
+                ch <- Message{
+                    packet: packet,
+                }
+                continue
+            }
+
             lenBuff := make([]byte, 1)
 
             if _, err := conn.Read(lenBuff); err != nil {
@@ -61,6 +73,16 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
     }()
 
     return
+}
+
+func isBodiless(p Packet) bool {
+    for _, bp := range bodilessPackets {
+        if p == bp {
+            return true
+        }
+    }
+
+    return false
 }
 
 func Mtob(msg Packet) []byte {
