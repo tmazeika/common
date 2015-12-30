@@ -13,15 +13,11 @@ const (
 type Packet byte
 
 const (
-    Ping               Packet = 0x00
-    Pong               Packet = 0x01
-    PuncherReady       Packet = 0x02
-    PuncherNotReady    Packet = 0x03
-    PuncherEndPing     Packet = 0x04
-    DownloadClientType Packet = 0x05
-    UploadClientType   Packet = 0x06
-    ChecksumMismatch   Packet = 0x07
-    ChecksumMatch      Packet = 0x08
+    Ping           Packet = 0x00
+    Pong           Packet = 0x01
+    ClientType     Packet = 0x02
+    FileInfo       Packet = 0x03
+    ChecksumStatus Packet = 0x04
 )
 
 type Message struct {
