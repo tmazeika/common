@@ -158,20 +158,26 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
     return
 }
 
-func WriteMessage(msg Message) []byte {
+func WriteMessage(msg Message) ([]byte, error) {
     var buff bytes.Buffer
 
     buff.WriteByte(byte(msg.packet))
 
     if ! ArrayContains(bodilessPackets, msg.packet) {
         if _, known := fixedLengthPackets[msg.packet]; ! known {
+            bodyLen := len(msg.body)
+
+            if bodyLen > 0xFF {
+                return nil, fmt.Errorf("length of body cannot fit in byte (got %d bytes)", bodyLen)
+            }
+
             buff.WriteByte(byte(len(msg.body)))
         }
 
         buff.Write(msg.body)
     }
 
-    return buff.Bytes()
+    return buff.Bytes(), nil
 }
 
 func Mtob(msg Packet) []byte {
