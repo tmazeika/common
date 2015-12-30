@@ -10,18 +10,61 @@ const (
     UidLength = 16
 )
 
-type Packet byte
+type Packet       byte
+type ClientType   byte
+type Verification byte
 
 const (
-    Ping           Packet = 0x00
-    Pong           Packet = 0x01
-    ClientType     Packet = 0x02
-    FileInfo       Packet = 0x03
-    ChecksumStatus Packet = 0x04
+    // Ping is sent from the puncher to an uploader or downloader.
+    Ping                 Packet       = 0x00
+
+    // Pong is sent from the uploader or downloader to the puncher.
+    Pong                 Packet       = 0x01
+
+    // ClientType is sent from the uploader or downloader to the puncher
+    // followed by a known length byte indicating the type of client
+    // (ClientType)
+    ClientType           Packet       = 0x02
+
+    // DownloaderClientType is a body of the ClientType Packet.
+    DownloaderClientType ClientType   = 0x00
+
+    // UploaderClientType is a body of the ClientType Packet.
+    UploaderClientType   ClientType   = 0x01
+
+    // FileName is sent from the uploader to the downloader indicating the name
+    // of the file about to be sent.
+    FileName             Packet       = 0x03
+
+    // FileSize is sent from the uploader to the downloader indicating the size
+    // of the file about to be sent.
+    FileSize             Packet       = 0x04
+
+    // FileHash is sent from the uploader to the downloader indicating the hash
+    // of the file about to be sent.
+    FileHash             Packet       = 0x05
+
+    // Verification is sent from the downloader to the uploader indicating the
+    // status of the hash of the received file (Verification).
+    Verification         Packet       = 0x06
+
+    // GoodVerification is the body of the Verification Packet indicating
+    // verification has succeeded.
+    GoodVerification     Verification = 0x00
+
+    // BadVerification is the body of the Verification Packet indicating
+    // verification has failed.
+    BadVerification      Verification = 0x01
 )
 
 var (
     bodilessPackets = []Packet{Ping, Pong}
+
+    knownLengthPackets = map[Packet]uint8{
+        Ping:       0,
+        Pong:       0,
+        ClientType: 1,
+    }
 )
 
 type Message struct {
