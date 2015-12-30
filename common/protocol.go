@@ -137,16 +137,6 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
     return
 }
 
-func ArrayContains(array []Type, value Type) bool {
-    for _, v := range array {
-        if v == value {
-            return true
-        }
-    }
-
-    return false
-}
-
 func Mtob(msg Packet) []byte {
     return []byte{byte(msg)}
 }
