@@ -168,7 +168,7 @@ func WriteMessage(msg Message) ([]byte, error) {
             bodyLen := len(msg.body)
 
             if bodyLen > 0xFF {
-                return nil, fmt.Errorf("length of body cannot fit in byte (got %d bytes)", bodyLen)
+                return nil, fmt.Errorf("length of body cannot fit in 1 byte (got %d bytes)", bodyLen)
             }
 
             buff.WriteByte(byte(len(msg.body)))
