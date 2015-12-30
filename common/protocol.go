@@ -84,10 +84,12 @@ var (
     // fixedLengthPackets is the map of all Packets that have a fixed length
     // body.
     fixedLengthPackets = map[Packet]uint8{
-        ClientType:   1,
-        FileSize:     8,  // uint64
-        FileHash:     32, // sha256
-        Verification: 1,
+        ClientType:    1,
+        UidAssignment: UidLength,
+        UidRequest:    UidLength,
+        FileSize:      8,  // uint64
+        FileHash:      32, // sha256
+        Verification:  1,
     }
 )
 
