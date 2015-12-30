@@ -10,23 +10,23 @@ const (
     UidLength = 16
 )
 
-type ProtocolMessage byte
+type Packet byte
 
 const (
-    Ping               ProtocolMessage = 0x00
-    Pong               ProtocolMessage = 0x01
-    PuncherReady       ProtocolMessage = 0x02
-    PuncherNotReady    ProtocolMessage = 0x03
-    PuncherEndPing     ProtocolMessage = 0x04
-    DownloadClientType ProtocolMessage = 0x05
-    UploadClientType   ProtocolMessage = 0x06
-    ChecksumMismatch   ProtocolMessage = 0x07
-    ChecksumMatch      ProtocolMessage = 0x08
+    Ping               Packet = 0x00
+    Pong               Packet = 0x01
+    PuncherReady       Packet = 0x02
+    PuncherNotReady    Packet = 0x03
+    PuncherEndPing     Packet = 0x04
+    DownloadClientType Packet = 0x05
+    UploadClientType   Packet = 0x06
+    ChecksumMismatch   Packet = 0x07
+    ChecksumMatch      Packet = 0x08
 )
 
 type Message struct {
-    desc ProtocolMessage
-    body []byte
+    packet Packet
+    body   []byte
 }
 
 func MessageChannel(conn net.Conn) (ch chan Message) {
@@ -34,14 +34,14 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
 
     go func() {
         for {
-            descBuff := make([]byte, 1)
+            packetBuff := make([]byte, 1)
 
-            if _, err := conn.Read(descBuff); err != nil {
+            if _, err := conn.Read(packetBuff); err != nil {
                 fmt.Fprintf(os.Stderr, "Read error for '%s': %s", conn.RemoteAddr(), err)
                 return
             }
 
-            desc := ProtocolMessage(descBuff[0])
+            packet := Packet(packetBuff[0])
             lenBuff := make([]byte, 1)
 
             if _, err := conn.Read(lenBuff); err != nil {
@@ -58,8 +58,8 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
             }
 
             ch <- Message{
-                desc: desc,
-                body: bodyBuff,
+                packet: packet,
+                body:   bodyBuff,
             }
         }
     }()
@@ -67,6 +67,6 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
     return
 }
 
-func Mtob(msg ProtocolMessage) []byte {
+func Mtob(msg Packet) []byte {
     return []byte{byte(msg)}
 }
