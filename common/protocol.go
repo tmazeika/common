@@ -58,12 +58,16 @@ const (
 )
 
 var (
-    bodilessPackets = []Packet{Ping, Pong}
+    bodilessPackets = []Packet{
+        Ping,
+        Pong,
+    }
 
     knownLengthPackets = map[Packet]uint8{
-        Ping:       0,
-        Pong:       0,
-        ClientType: 1,
+        ClientType:   1,
+        FileSize:     8,  // uint64
+        FileHash:     32, // sha256
+        Verification: 1,
     }
 )
 
