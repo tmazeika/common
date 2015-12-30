@@ -100,7 +100,7 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
 
             packet := Packet(packetBuff[0])
 
-            if isBodiless(packet) {
+            if ArrayContains(bodilessPackets, packet) {
                 ch <- Message{
                     packet: packet,
                 }
@@ -137,9 +137,9 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
     return
 }
 
-func isBodiless(p Packet) bool {
-    for _, bp := range bodilessPackets {
-        if p == bp {
+func ArrayContains(array []Type, value Type) bool {
+    for _, v := range array {
+        if v == value {
             return true
         }
     }
