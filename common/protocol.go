@@ -96,30 +96,30 @@ var (
 // Message is a message from one endpoint from another with a packet and body.
 // Some messages may be bodiless, where body will therefore be nil.
 type Message struct {
-    // packet is the Packet that describes the body, if present.
-    packet Packet
+    // Packet is the Packet that describes the body, if present.
+    Packet Packet
 
-    // body is the bytes that the packet describes. May be nil if bodiless.
-    body   []byte
+    // Body is the bytes that the packet describes. May be nil if bodiless.
+    Body   []byte
 }
 
 func (m Message) MarshalBinary() (data []byte, err error) {
     var buff bytes.Buffer
 
-    buff.WriteByte(byte(m.packet))
+    buff.WriteByte(byte(m.Packet))
 
-    if ! ArrayContains(bodilessPackets, m.packet) {
-        if _, known := fixedLengthPackets[m.packet]; ! known {
-            bodyLen := len(m.body)
+    if ! ArrayContains(bodilessPackets, m.Packet) {
+        if _, known := fixedLengthPackets[m.Packet]; ! known {
+            bodyLen := len(m.Body)
 
             if bodyLen > 0xFF {
                 return nil, fmt.Errorf("length of body cannot fit in 1 byte (got %d bytes)", bodyLen)
             }
 
-            buff.WriteByte(byte(len(m.body)))
+            buff.WriteByte(byte(len(m.Body)))
         }
 
-        buff.Write(m.body)
+        buff.Write(m.Body)
     }
 
     return buff.Bytes(), nil
@@ -145,7 +145,7 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
 
             if ArrayContains(bodilessPackets, packet) {
                 ch <- Message{
-                    packet: packet,
+                    Packet: packet,
                 }
                 continue
             }
@@ -171,8 +171,8 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
             }
 
             ch <- Message{
-                packet: packet,
-                body:   bodyBuff,
+                Packet: packet,
+                Body:   bodyBuff,
             }
         }
     }()
