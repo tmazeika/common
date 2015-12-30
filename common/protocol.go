@@ -4,6 +4,7 @@ import (
     "os"
     "fmt"
     "net"
+    "bytes"
 )
 
 const (
@@ -40,21 +41,29 @@ const (
     // UploaderClientType is a body of the ClientType Packet.
     UploaderClientType   ClientType   = 0x01
 
+    // UidAssignment is sent from the puncher to the downloader to indicate the
+    // UID of the downloader.
+    UidAssignment        Packet       = 0x03
+
+    // UidRequest is sent from the uploader to the puncher to indicate the
+    // UID of the downloader it would like to connect to.
+    UidRequest           Packet       = 0x04
+
     // FileName is sent from the uploader to the downloader indicating the name
     // of the file about to be sent.
-    FileName             Packet       = 0x03
+    FileName             Packet       = 0x05
 
     // FileSize is sent from the uploader to the downloader indicating the size
     // of the file about to be sent.
-    FileSize             Packet       = 0x04
+    FileSize             Packet       = 0x06
 
     // FileHash is sent from the uploader to the downloader indicating the hash
     // of the file about to be sent.
-    FileHash             Packet       = 0x05
+    FileHash             Packet       = 0x07
 
     // Verification is sent from the downloader to the uploader indicating the
     // status of the hash of the received file (Verification).
-    Verification         Packet       = 0x06
+    Verification         Packet       = 0x08
 
     // GoodVerification is the body of the Verification Packet indicating
     // verification has succeeded.
@@ -145,6 +154,22 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
     }()
 
     return
+}
+
+func WriteMessage(msg Message) []byte {
+    var buff bytes.Buffer
+
+    buff.WriteByte(byte(msg.packet))
+
+    if ! ArrayContains(bodilessPackets, msg.packet) {
+        if _, known := fixedLengthPackets[msg.packet]; ! known {
+            buff.WriteByte(byte(len(msg.body)))
+        }
+
+        buff.Write(msg.body)
+    }
+
+    return buff.Bytes()
 }
 
 func Mtob(msg Packet) []byte {
