@@ -8,8 +8,8 @@ const (
 type ProtocolMessage byte
 
 const (
-    PuncherPing        ProtocolMessage = 0x00
-    PuncherPong        ProtocolMessage = 0x01
+    Ping               ProtocolMessage = 0x00
+    Pong               ProtocolMessage = 0x01
     PuncherReady       ProtocolMessage = 0x02
     PuncherNotReady    ProtocolMessage = 0x03
     PuncherEndPing     ProtocolMessage = 0x04
