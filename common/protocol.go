@@ -82,15 +82,24 @@ var (
     }
 )
 
+// Message is a message from one endpoint from another with a packet and body.
+// Some messages may be bodiless, where body will therefore be nil.
 type Message struct {
+    // packet is the Packet that describes the body, if present.
     packet Packet
+
+    // body is the bytes that the packet describes. May be nil if bodiless.
     body   []byte
 }
 
+// MessageChannel returns a channel of Messages for the given Conn. Closes the
+// channel upon error.
 func MessageChannel(conn net.Conn) (ch chan Message) {
     ch = make(chan Message)
 
     go func() {
+        defer close(ch)
+
         for {
             packetBuff := make([]byte, 1)
 
