@@ -25,10 +25,10 @@ type VerificationB byte
 
 const (
     // Ping is sent from the puncher to an uploader or downloader.
-    Ping                 Packet         = 0x00
+    Ping                 Packet        = 0x00
 
     // Pong is sent from the uploader or downloader to the puncher.
-    Pong                 Packet         = 0x01
+    Pong                 Packet        = 0x01
 
     // ClientType is sent from the uploader or downloader to the puncher
     // followed by a known length byte indicating the type of client
