@@ -50,10 +50,9 @@ const (
     // UID of the downloader it would like to connect to.
     UidRequest           Packet           = 0x04
 
-    // DownloaderReady is sent from the puncher to the uploader to indicate that
-    // the downloader is ready to receive files. The body contains the external
-    // IP address of the peer.
-    DownloaderReady      Packet           = 0x05
+    // PeerNotFound is sent from the puncher to the uploader to indicate that
+    // the requested peer (identified by its UID) could not be found.
+    PeerNotFound         Packet           = 0x05
 
     // UploaderReady is sent from the puncher to the downloader to indicate that
     // the uploader is ready to send files.
