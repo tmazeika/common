@@ -7,11 +7,15 @@ import (
     "bytes"
 )
 
-// InCh is a channel of messages that are being received.
-type InCh             chan *Message
+type In struct {
+    Ch  chan Message
+    Err error
+}
 
-// OutCh is a channel of messages that are being sent.
-type OutCh            chan *Message
+type Out struct {
+    Ch  chan Message
+    Err error
+}
 
 // Packet is a description of the data sent from one endpoint to another.
 type Packet           byte
@@ -146,28 +150,26 @@ func (m Message) MarshalBinary() (data []byte, err error) {
 
 // MessageChannel returns a 2 channels of Messages for the given Conn. Closes
 // both channels upon error or closure.
-func MessageChannel(conn net.Conn) (in InCh, out OutCh) {
-    in = make(InCh)
-    out = make(OutCh)
+func MessageChannel(conn net.Conn) (in In, out Out) {
+    in = In{ make(chan Message), nil }
+    out = Out{ make(chan Message), nil }
 
     go func() {
-        defer close(in)
-        defer close(out)
+        defer close(in.Ch)
+        defer close(out.Ch)
 
         for {
             packetBuff := make([]byte, 1)
 
             if _, err := conn.Read(packetBuff); err != nil {
-                handleReadError(conn, err)
-                return
+                in.Err = err
+                break
             }
 
             packet := Packet(packetBuff[0])
 
             if isBodiless(packet) {
-                in <- Message{
-                    Packet: packet,
-                }
+                in.Ch <- Message{ packet, nil }
                 continue
             }
 
@@ -177,8 +179,8 @@ func MessageChannel(conn net.Conn) (in InCh, out OutCh) {
                 lenBuff := make([]byte, 1)
 
                 if _, err := conn.Read(lenBuff); err != nil {
-                    handleReadError(conn, err)
-                    return
+                    in.Err = err
+                    break
                 }
 
                 len = uint8(lenBuff[0])
@@ -187,11 +189,11 @@ func MessageChannel(conn net.Conn) (in InCh, out OutCh) {
             bodyBuff := make([]byte, len)
 
             if _, err := conn.Read(bodyBuff); err != nil {
-                handleReadError(conn, err)
+                in.Err = err
                 break
             }
 
-            in <- Message{
+            in.Ch <- Message{
                 Packet: packet,
                 Body:   bodyBuff,
             }
@@ -203,15 +205,15 @@ func MessageChannel(conn net.Conn) (in InCh, out OutCh) {
         defer close(out)
 
         for {
-            data, err := (<- out).MarshalBinary()
+            data, err := (<- out.Ch).MarshalBinary()
 
             if err != nil {
-                handleWriteError(conn, err)
+                out.Err = err
                 break
             }
 
             if _, err := conn.Write(data); err != nil {
-                handleWriteError(conn, err)
+                out.Err = err
                 break
             }
         }
@@ -220,13 +222,13 @@ func MessageChannel(conn net.Conn) (in InCh, out OutCh) {
     return
 }
 
-func handleReadError(conn net.Conn, err error) {
+/*func handleReadError(conn net.Conn, err error) {
     fmt.Fprintf(os.Stderr, "%s -- Read error: %s", conn.RemoteAddr(), err)
 }
 
 func handleWriteError(conn net.Conn, err error) {
     fmt.Fprintf(os.Stderr, "%s -- Write error: %s", conn.RemoteAddr(), err)
-}
+}*/
 
 func isBodiless(p Packet) bool {
     for _, v := range bodilessPackets {
