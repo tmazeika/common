@@ -7,6 +7,12 @@ import (
     "bytes"
 )
 
+// InCh is a channel of messages that are being received.
+type InCh             chan *Message
+
+// OutCh is a channel of messages that are being sent.
+type OutCh            chan *Message
+
 // Packet is a description of the data sent from one endpoint to another.
 type Packet           byte
 
@@ -104,8 +110,6 @@ var (
     // body.
     fixedLengthPackets = map[Packet]uint8{
         ClientType:    1,
-        UidAssignment: UidLength,
-        UidRequest:    UidLength,
         FileSize:      8,  // uint64
         FileHash:      32, // sha256
         Verification:  1,
@@ -150,9 +154,9 @@ func (m Message) MarshalBinary() (data []byte, err error) {
 
 // MessageChannel returns a 2 channels of Messages for the given Conn. Closes
 // both channels upon error or closure.
-func MessageChannel(conn net.Conn) (in chan Message, out chan Message) {
-    in = make(chan Message)
-    out = make(chan Message)
+func MessageChannel(conn net.Conn) (in InCh, out OutCh) {
+    in = make(InCh)
+    out = make(OutCh)
 
     go func() {
         defer close(in)
