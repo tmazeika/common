@@ -43,7 +43,7 @@ const (
 
     // PeerReady is sent from the puncher to the uploader to indicate that the
     // requested peer (identified by its uid) was found and is ready for further
-    // communication.
+    // communication. The body contains the external IP address of the peer.
     PeerReady     Packet = 0x04
 
     // UploaderReady is sent from the puncher to the downloader to indicate that
