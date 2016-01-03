@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func logAndExit(err error) {
+func LogAndExit(err error) {
 	fmt.Fprintln(os.Stderr, err)
 	os.Exit(1)
 }
