@@ -122,6 +122,10 @@ type Message struct {
     Body   []byte
 }
 
+func NewMesssageWithByte(packet Packet, body byte) *Message {
+    return &Message{ packet, []byte{body} }
+}
+
 func (m Message) MarshalBinary() (data []byte, err error) {
     var buff bytes.Buffer
 
@@ -236,8 +240,4 @@ func isBodiless(p Packet) bool {
     }
 
     return false
-}
-
-func Mtob(msg Packet) []byte {
-    return []byte{byte(msg)}
 }
