@@ -17,61 +17,61 @@ type Packet       byte
 
 // ClientTypeB is a body of ClientType indicating the type of client connecting
 // to the puncher.
-type ClientTypeB   byte
+type ClientTypeBody   byte
 
 // VerificationB is a body of Verification indicating the status of verification
 // for the received file (checksum verification).
-type VerificationB byte
+type VerificationBody byte
 
 const (
     // Ping is sent from the puncher to an uploader or downloader.
-    Ping                 Packet        = 0x00
+    Ping                 Packet           = 0x00
 
     // Pong is sent from the uploader or downloader to the puncher.
-    Pong                 Packet        = 0x01
+    Pong                 Packet           = 0x01
 
     // ClientType is sent from the uploader or downloader to the puncher
     // followed by a known length byte indicating the type of client
     // (ClientType).
-    ClientType           Packet        = 0x02
+    ClientType           Packet           = 0x02
 
     // DownloaderClientType is a body of the ClientType Packet.
-    DownloaderClientType ClientTypeB   = 0x00
+    DownloaderClientType ClientTypeBody   = 0x00
 
     // UploaderClientType is a body of the ClientType Packet.
-    UploaderClientType   ClientTypeB   = 0x01
+    UploaderClientType   ClientTypeBody   = 0x01
 
     // UidAssignment is sent from the puncher to the downloader to indicate the
     // UID of the downloader.
-    UidAssignment        Packet        = 0x03
+    UidAssignment        Packet           = 0x03
 
     // UidRequest is sent from the uploader to the puncher to indicate the
     // UID of the downloader it would like to connect to.
-    UidRequest           Packet        = 0x04
+    UidRequest           Packet           = 0x04
 
     // FileName is sent from the uploader to the downloader indicating the name
     // of the file about to be sent.
-    FileName             Packet        = 0x05
+    FileName             Packet           = 0x05
 
     // FileSize is sent from the uploader to the downloader indicating the size
     // of the file about to be sent.
-    FileSize             Packet        = 0x06
+    FileSize             Packet           = 0x06
 
     // FileHash is sent from the uploader to the downloader indicating the hash
     // of the file about to be sent.
-    FileHash             Packet        = 0x07
+    FileHash             Packet           = 0x07
 
     // Verification is sent from the downloader to the uploader indicating the
     // status of the hash of the received file (Verification).
-    Verification         Packet        = 0x08
+    Verification         Packet           = 0x08
 
     // GoodVerification is the body of the Verification Packet indicating
     // verification has succeeded.
-    GoodVerification     VerificationB = 0x00
+    GoodVerification     VerificationBody = 0x00
 
     // BadVerification is the body of the Verification Packet indicating
     // verification has failed.
-    BadVerification      VerificationB = 0x01
+    BadVerification      VerificationBody = 0x01
 )
 
 var (
