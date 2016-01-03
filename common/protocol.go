@@ -226,14 +226,6 @@ func MessageChannel(conn net.Conn) (in In, out Out) {
     return
 }
 
-/*func handleReadError(conn net.Conn, err error) {
-    fmt.Fprintf(os.Stderr, "%s -- Read error: %s", conn.RemoteAddr(), err)
-}
-
-func handleWriteError(conn net.Conn, err error) {
-    fmt.Fprintf(os.Stderr, "%s -- Write error: %s", conn.RemoteAddr(), err)
-}*/
-
 func isBodiless(p Packet) bool {
     for _, v := range bodilessPackets {
         if v == p {
