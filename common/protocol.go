@@ -103,7 +103,7 @@ var (
     bodilessPackets = []Packet{
         Ping,
         Pong,
-        DownloaderReady,
+        PeerNotFound,
         UploaderReady,
     }
 
