@@ -83,6 +83,11 @@ const (
     // of this message encountered an internal error. The body contains an error
     // string.
     InternalError        Packet           = 0x0A
+
+    // Halt is sent from any peer to another indicating that all current
+    // connections should be closed and that no future communications will take
+    // place. The body contains a message describing the reason.
+    Halt                 Packet           = 0x0B
 )
 
 var (
