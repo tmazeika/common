@@ -1,20 +1,24 @@
 package common
 
 import (
-    "os"
     "fmt"
     "net"
     "bytes"
 )
 
-type In struct {
+type MessageCh struct {
     Ch  chan Message
     Err error
 }
 
+type In struct {
+    MessageCh
+}
+
 type Out struct {
-    Ch  chan Message
-    Err error
+    MessageCh
+
+    Done chan int
 }
 
 // Packet is a description of the data sent from one endpoint to another.
@@ -122,10 +126,6 @@ type Message struct {
     Body   []byte
 }
 
-func NewMesssageWithByte(packet Packet, body byte) *Message {
-    return &Message{ packet, []byte{body} }
-}
-
 func (m Message) MarshalBinary() (data []byte, err error) {
     var buff bytes.Buffer
 
@@ -152,11 +152,12 @@ func (m Message) MarshalBinary() (data []byte, err error) {
 // both channels upon error or closure.
 func MessageChannel(conn net.Conn) (in In, out Out) {
     in = In{ make(chan Message), nil }
-    out = Out{ make(chan Message), nil }
+    out = Out{ make(chan Message), make(chan int), nil }
 
     go func() {
         defer close(in.Ch)
         defer close(out.Ch)
+        defer close(out.Done)
 
         for {
             packetBuff := make([]byte, 1)
@@ -201,8 +202,9 @@ func MessageChannel(conn net.Conn) (in In, out Out) {
     }()
 
     go func() {
-        defer close(in)
-        defer close(out)
+        defer close(in.Ch)
+        defer close(out.Ch)
+        defer close(out.Done)
 
         for {
             data, err := (<- out.Ch).MarshalBinary()
@@ -216,6 +218,8 @@ func MessageChannel(conn net.Conn) (in In, out Out) {
                 out.Err = err
                 break
             }
+
+            out.Done <- 0
         }
     }()
 
