@@ -13,7 +13,7 @@ const (
 )
 
 // Packet is a description of the data sent from one endpoint to another.
-type Packet       byte
+type Packet           byte
 
 // ClientTypeB is a body of ClientType indicating the type of client connecting
 // to the puncher.
