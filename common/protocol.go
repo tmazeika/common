@@ -23,6 +23,7 @@ type ClientTypeBody   byte
 // for the received file (checksum verification).
 type VerificationBody byte
 
+// TODO: organize packet numbers
 const (
     // Ping is sent from the puncher to an uploader or downloader.
     Ping                 Packet           = 0x00
@@ -72,6 +73,10 @@ const (
     // BadVerification is the body of the Verification Packet indicating
     // verification has failed.
     BadVerification      VerificationBody = 0x01
+
+    // ProtocolError is sent from any peer to another. The body contains an
+    // error string.
+    ProtocolError        Packet           = 0x09
 )
 
 var (
