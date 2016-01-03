@@ -136,7 +136,7 @@ func (m Message) MarshalBinary() (data []byte, err error) {
     buff.WriteByte(byte(m.Packet))
 
     if ! isBodiless(m.Packet) {
-        if _, known := fixedLengthPackets[m.Packet]; ! known {
+        if _, fixed := fixedLengthPackets[m.Packet]; ! fixed {
             bodyLen := len(m.Body)
 
             if bodyLen > 0xFF {
