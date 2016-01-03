@@ -112,7 +112,7 @@ var (
     }
 )
 
-// Message is a message from one endpoint from another with a packet and body.
+// Message is a message from one endpoint to another with a packet and body.
 // Some messages may be bodiless, where body will therefore be nil.
 type Message struct {
     // Packet is the Packet that describes the body, if present.
