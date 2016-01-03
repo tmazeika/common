@@ -74,9 +74,15 @@ const (
     // verification has failed.
     BadVerification      VerificationBody = 0x01
 
-    // ProtocolError is sent from any peer to another. The body contains an
+    // ProtocolError is sent from any peer to another indicating that the sender
+    // of this message received unexpected or invalid data. The body contains an
     // error string.
     ProtocolError        Packet           = 0x09
+
+    // InternalError is sent from any peer to another indicating that the sender
+    // of this message encountered an internal error. The body contains an error
+    // string.
+    InternalError        Packet           = 0x0A
 )
 
 var (
