@@ -104,6 +104,8 @@ var (
     bodilessPackets = []Packet{
         Ping,
         Pong,
+        DownloaderReady,
+        UploaderReady,
     }
 
     // fixedLengthPackets is the map of all Packets that have a fixed length
