@@ -23,56 +23,66 @@ type ClientTypeBody   byte
 // for the received file (checksum verification).
 type VerificationBody byte
 
-// TODO: organize packet numbers
 const (
-    // Ping is sent from the puncher to an uploader or downloader.
-    Ping                 Packet           = 0x00
-
-    // Pong is sent from the uploader or downloader to the puncher.
-    Pong                 Packet           = 0x01
-
     // ClientType is sent from the uploader or downloader to the puncher
     // followed by a known length byte indicating the type of client
     // (ClientType).
-    ClientType           Packet           = 0x02
+    ClientType           Packet           = 0x00
 
+    // UidAssignment is sent from the puncher to the downloader to indicate the
+    // UID of the downloader.
+    UidAssignment        Packet           = 0x01
+
+    // UidRequest is sent from the uploader to the puncher to indicate the
+    // UID of the downloader it would like to connect to.
+    UidRequest           Packet           = 0x02
+
+    // PeerNotFound is sent from the puncher to the uploader to indicate that
+    // the requested peer (identified by its UID) could not be found.
+    PeerNotFound         Packet           = 0x03
+
+    // UploaderReady is sent from the puncher to the downloader to indicate that
+    // the uploader is ready to send files.
+    UploaderReady        Packet           = 0x04
+
+    // FileName is sent from the uploader to the downloader indicating the name
+    // of the file about to be sent.
+    FileName             Packet           = 0x05
+
+    // FileSize is sent from the uploader to the downloader indicating the size
+    // of the file about to be sent.
+    FileSize             Packet           = 0x06
+
+    // FileHash is sent from the uploader to the downloader indicating the hash
+    // of the file about to be sent.
+    FileHash             Packet           = 0x07
+
+    // Verification is sent from the downloader to the uploader indicating the
+    // status of the hash of the received file (Verification).
+    Verification         Packet           = 0x08
+
+    // ProtocolError is sent from any peer to another indicating that the sender
+    // of this message received unexpected or invalid data. The body contains an
+    // error string.
+    ProtocolError        Packet           = 0x09
+
+    // InternalError is sent from any peer to another indicating that the sender
+    // of this message encountered an internal error. The body contains an error
+    // string.
+    InternalError        Packet           = 0x0A
+
+    // Halt is sent from any peer to another indicating that all current
+    // connections should be closed and that no future communications will take
+    // place. The body contains a message describing the reason.
+    Halt                 Packet           = 0x0B
+)
+
+const (
     // DownloaderClientType is a body of the ClientType Packet.
     DownloaderClientType ClientTypeBody   = 0x00
 
     // UploaderClientType is a body of the ClientType Packet.
     UploaderClientType   ClientTypeBody   = 0x01
-
-    // UidAssignment is sent from the puncher to the downloader to indicate the
-    // UID of the downloader.
-    UidAssignment        Packet           = 0x03
-
-    // UidRequest is sent from the uploader to the puncher to indicate the
-    // UID of the downloader it would like to connect to.
-    UidRequest           Packet           = 0x04
-
-    // PeerNotFound is sent from the puncher to the uploader to indicate that
-    // the requested peer (identified by its UID) could not be found.
-    PeerNotFound         Packet           = 0x05
-
-    // UploaderReady is sent from the puncher to the downloader to indicate that
-    // the uploader is ready to send files.
-    UploaderReady        Packet           = 0x06
-
-    // FileName is sent from the uploader to the downloader indicating the name
-    // of the file about to be sent.
-    FileName             Packet           = 0x07
-
-    // FileSize is sent from the uploader to the downloader indicating the size
-    // of the file about to be sent.
-    FileSize             Packet           = 0x08
-
-    // FileHash is sent from the uploader to the downloader indicating the hash
-    // of the file about to be sent.
-    FileHash             Packet           = 0x09
-
-    // Verification is sent from the downloader to the uploader indicating the
-    // status of the hash of the received file (Verification).
-    Verification         Packet           = 0x0A
 
     // GoodVerification is the body of the Verification Packet indicating
     // verification has succeeded.
@@ -81,28 +91,11 @@ const (
     // BadVerification is the body of the Verification Packet indicating
     // verification has failed.
     BadVerification      VerificationBody = 0x01
-
-    // ProtocolError is sent from any peer to another indicating that the sender
-    // of this message received unexpected or invalid data. The body contains an
-    // error string.
-    ProtocolError        Packet           = 0x0B
-
-    // InternalError is sent from any peer to another indicating that the sender
-    // of this message encountered an internal error. The body contains an error
-    // string.
-    InternalError        Packet           = 0x0C
-
-    // Halt is sent from any peer to another indicating that all current
-    // connections should be closed and that no future communications will take
-    // place. The body contains a message describing the reason.
-    Halt                 Packet           = 0x0D
 )
 
 var (
     // bodilessPackets is the set of all Packets that do not have a body.
     bodilessPackets = []Packet{
-        Ping,
-        Pong,
         PeerNotFound,
         UploaderReady,
     }
