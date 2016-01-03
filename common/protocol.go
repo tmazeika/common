@@ -149,7 +149,7 @@ func MessageChannel(conn net.Conn) (in chan Message, out chan Message) {
             packetBuff := make([]byte, 1)
 
             if _, err := conn.Read(packetBuff); err != nil {
-                fmt.Fprintf(os.Stderr, "Read error for '%s': %s", conn.RemoteAddr(), err)
+                handleReadError(conn, err)
                 return
             }
 
@@ -168,7 +168,7 @@ func MessageChannel(conn net.Conn) (in chan Message, out chan Message) {
                 lenBuff := make([]byte, 1)
 
                 if _, err := conn.Read(lenBuff); err != nil {
-                    fmt.Fprintf(os.Stderr, "Read error for '%s': %s", conn.RemoteAddr(), err)
+                    handleReadError(conn, err)
                     return
                 }
 
@@ -178,7 +178,7 @@ func MessageChannel(conn net.Conn) (in chan Message, out chan Message) {
             bodyBuff := make([]byte, len)
 
             if _, err := conn.Read(bodyBuff); err != nil {
-                fmt.Fprintf(os.Stderr, "Read error for '%s': %s", conn.RemoteAddr(), err)
+                handleReadError(conn, err)
                 break
             }
 
@@ -199,18 +199,26 @@ func MessageChannel(conn net.Conn) (in chan Message, out chan Message) {
             data, err := (<- out).MarshalBinary()
 
             if err != nil {
-                fmt.Fprintf(os.Stderr, "Write error for '%s': %s", conn.RemoteAddr(), err)
+                handleWriteError(conn, err)
                 break
             }
 
             if _, err := conn.Write(data); err != nil {
-                fmt.Fprintf(os.Stderr, "Write error for '%s': %s", conn.RemoteAddr(), err)
+                handleWriteError(conn, err)
                 break
             }
         }
     }()
 
     return
+}
+
+func handleReadError(conn net.Conn, err error) {
+    fmt.Fprintf(os.Stderr, "%s -- Read error: %s", conn.RemoteAddr(), err)
+}
+
+func handleWriteError(conn net.Conn, err error) {
+    fmt.Fprintf(os.Stderr, "%s -- Write error: %s", conn.RemoteAddr(), err)
 }
 
 func isBodiless(p Packet) bool {
