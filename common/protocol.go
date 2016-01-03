@@ -125,13 +125,14 @@ func (m Message) MarshalBinary() (data []byte, err error) {
     return buff.Bytes(), nil
 }
 
-// MessageChannel returns a channel of Messages for the given Conn. Closes the
-// channel upon error.
-func MessageChannel(conn net.Conn) (ch chan Message) {
-    ch = make(chan Message)
+// MessageChannel returns a 2 channels of Messages for the given Conn. Closes
+// both channels upon error or closure.
+func MessageChannel(conn net.Conn) (in chan Message, out chan Message) {
+    in = make(chan Message)
 
     go func() {
-        defer close(ch)
+        defer close(in)
+        defer close(out)
 
         for {
             packetBuff := make([]byte, 1)
@@ -144,7 +145,7 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
             packet := Packet(packetBuff[0])
 
             if isBodiless(packet) {
-                ch <- Message{
+                in <- Message{
                     Packet: packet,
                 }
                 continue
@@ -167,12 +168,33 @@ func MessageChannel(conn net.Conn) (ch chan Message) {
 
             if _, err := conn.Read(bodyBuff); err != nil {
                 fmt.Fprintf(os.Stderr, "Read error for '%s': %s", conn.RemoteAddr(), err)
-                return
+                break
             }
 
-            ch <- Message{
+            in <- Message{
                 Packet: packet,
                 Body:   bodyBuff,
+            }
+        }
+    }()
+
+    out = make(chan Message)
+
+    go func() {
+        defer close(in)
+        defer close(out)
+
+        for {
+            data, err := (<- out).MarshalBinary()
+
+            if err != nil {
+                fmt.Fprintf(os.Stderr, "Write error for '%s': %s", conn.RemoteAddr(), err)
+                break
+            }
+
+            if _, err := conn.Write(data); err != nil {
+                fmt.Fprintf(os.Stderr, "Write error for '%s': %s", conn.RemoteAddr(), err)
+                break
             }
         }
     }()
