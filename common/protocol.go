@@ -27,54 +27,54 @@ const (
     // ClientType is sent from the uploader or downloader to the puncher
     // followed by a known length byte indicating the type of client
     // (ClientType).
-    ClientType           Packet           = 0x00
+    ClientType    Packet = 0x00
 
     // UidAssignment is sent from the puncher to the downloader to indicate the
     // UID of the downloader.
-    UidAssignment        Packet           = 0x01
+    UidAssignment Packet = 0x01
 
     // UidRequest is sent from the uploader to the puncher to indicate the
     // UID of the downloader it would like to connect to.
-    UidRequest           Packet           = 0x02
+    UidRequest    Packet = 0x02
 
     // PeerNotFound is sent from the puncher to the uploader to indicate that
     // the requested peer (identified by its UID) could not be found.
-    PeerNotFound         Packet           = 0x03
+    PeerNotFound  Packet = 0x03
 
     // UploaderReady is sent from the puncher to the downloader to indicate that
     // the uploader is ready to send files.
-    UploaderReady        Packet           = 0x04
+    UploaderReady Packet = 0x04
 
     // FileName is sent from the uploader to the downloader indicating the name
     // of the file about to be sent.
-    FileName             Packet           = 0x05
+    FileName      Packet = 0x05
 
     // FileSize is sent from the uploader to the downloader indicating the size
     // of the file about to be sent.
-    FileSize             Packet           = 0x06
+    FileSize      Packet = 0x06
 
     // FileHash is sent from the uploader to the downloader indicating the hash
     // of the file about to be sent.
-    FileHash             Packet           = 0x07
+    FileHash      Packet = 0x07
 
     // Verification is sent from the downloader to the uploader indicating the
     // status of the hash of the received file (Verification).
-    Verification         Packet           = 0x08
+    Verification  Packet = 0x08
 
     // ProtocolError is sent from any peer to another indicating that the sender
     // of this message received unexpected or invalid data. The body contains an
     // error string.
-    ProtocolError        Packet           = 0x09
+    ProtocolError Packet = 0x09
 
     // InternalError is sent from any peer to another indicating that the sender
     // of this message encountered an internal error. The body contains an error
     // string.
-    InternalError        Packet           = 0x0A
+    InternalError Packet = 0x0A
 
     // Halt is sent from any peer to another indicating that all current
     // connections should be closed and that no future communications will take
     // place. The body contains a message describing the reason.
-    Halt                 Packet           = 0x0B
+    Halt          Packet = 0x0B
 )
 
 const (
