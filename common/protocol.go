@@ -67,32 +67,27 @@ const (
 
     HashMismatch  Packet = 0x0B
 
-    // ProtocolError is sent from any peer to another indicating that the sender
-    // of this message received unexpected or invalid data. The body contains an
-    // error string.
-    ProtocolError Packet = 0x0C
-
-    // InternalError is sent from any peer to another indicating that the sender
-    // of this message encountered an internal error. The body contains an error
-    // string.
-    InternalError Packet = 0x0D
+    // Error is sent from any peer to another indicating that the sender
+    // of this message encountered an error, at the fault of either endpoint.
+    // The body contains a string describing the issue.
+    Error         Packet = 0x0C
 
     // Halt is sent from any peer to another indicating that all current
     // connections should be closed and that no future communications will take
     // place. The body contains a message describing the reason.
-    Halt          Packet = 0x0E
+    Halt          Packet = 0x0D
 
     // Version is sent from one peer to another indicating the version of
     // itself. The body contains the version number.
-    Version       Packet = 0x0F
+    Version       Packet = 0x0E
 
     // Compatible is sent from one peer to another indicating that it thinks
     // that it is compatible with the peer.
-    Compatible    Packet = 0x10
+    Compatible    Packet = 0x0F
 
     // Incompatible is sent from one peer to another indicating that it thinks
     // that it is incompatible with the peer.
-    Incompatible  Packet = 0x11
+    Incompatible  Packet = 0x10
 )
 
 var (
