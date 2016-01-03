@@ -7,11 +7,6 @@ import (
     "bytes"
 )
 
-const (
-    // UidLength is the length of the UID that the puncher server issues.
-    UidLength = 16
-)
-
 // Packet is a description of the data sent from one endpoint to another.
 type Packet           byte
 
