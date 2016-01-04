@@ -12,7 +12,7 @@ import (
     "encoding/pem"
 )
 
-func CalculateFileChecksum(file *os.File) ([]byte, error) {
+func CalculateFileHash(file *os.File) ([]byte, error) {
     hash := sha256.New()
 
     if _, err := io.Copy(hash, file); err != nil {
