@@ -146,8 +146,13 @@ func (m Message) MarshalBinary() (data []byte, err error) {
 // MessageChannel returns a 2 channels of Messages for the given Conn. Closes
 // both channels upon error or closure.
 func MessageChannel(conn net.Conn) (in In, out Out) {
-    in = In{ make(chan Message), nil }
-    out = Out{ make(chan Message), make(chan int), nil }
+    in = In{
+        MessageCh{make(chan Message), nil},
+    }
+    out = Out{
+        MessageCh{make(chan Message), nil},
+        Done: make(chan int),
+    }
 
     go func() {
         defer close(in.Ch)
