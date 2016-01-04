@@ -160,10 +160,17 @@ func MessageChannel(conn net.Conn) (in *In, out *Out) {
         Done: make(chan int),
     }
 
+    close := make(chan int)
+
     go func() {
-        defer close(in.Ch)
-        defer close(out.Ch)
-        defer close(out.Done)
+        <- close
+        close(in.Ch)
+        close(out.Ch)
+        close(out.Done)
+    }()
+
+    go func() {
+        defer func() { close <- 0 }()
 
         for {
             packetBuff := make([]byte, 1)
@@ -208,9 +215,7 @@ func MessageChannel(conn net.Conn) (in *In, out *Out) {
     }()
 
     go func() {
-        defer close(in.Ch)
-        defer close(out.Ch)
-        defer close(out.Done)
+        defer func() { close <- 0 }()
 
         for {
             data, err := (<- out.Ch).MarshalBinary()
