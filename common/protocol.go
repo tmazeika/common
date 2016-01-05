@@ -90,27 +90,6 @@ const (
     Incompatible  Tag = 0x10
 )
 
-var (
-    // bodilessPackets is the set of all Packets that do not have a body.
-    bodilessPackets = []Packet{
-        Downloader,
-        Uploader,
-        PeerNotFound,
-        UploaderReady,
-        HashMatch,
-        HashMismatch,
-        Compatible,
-        Incompatible,
-    }
-
-    // fixedLengthPackets is the map of all Packets that have a fixed length
-    // body.
-    fixedLengthPackets = map[Packet]uint8{
-        FileSize:      8,  // uint64
-        FileHash:      32, // sha256
-    }
-)
-
 type Message struct {
     Tag    Tag
     Length uint16
@@ -244,14 +223,4 @@ func MessageChannel(conn net.Conn) (in *In, out *Out) {
     }()
 
     return
-}
-
-func isBodiless(p Packet) bool {
-    for _, v := range bodilessPackets {
-        if v == p {
-            return true
-        }
-    }
-
-    return false
 }
