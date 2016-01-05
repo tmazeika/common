@@ -4,6 +4,7 @@ import (
     "fmt"
     "net"
     "bytes"
+    "encoding/binary"
 )
 
 type MessageCh struct {
@@ -21,73 +22,72 @@ type Out struct {
     Done chan int
 }
 
-// Packet is a description of the data sent from one endpoint to another.
-type Packet           byte
+type Tag byte
 
 // TODO: protocol docs
 const (
-    Downloader    Packet = 0x00
+    Downloader    Tag = 0x00
 
-    Uploader      Packet = 0x01
+    Uploader      Tag = 0x01
 
     // UidAssignment is sent from the puncher to the downloader to indicate the
     // UID of the downloader.
-    UidAssignment Packet = 0x02
+    UidAssignment Tag = 0x02
 
     // UidRequest is sent from the uploader to the puncher to indicate the
     // UID of the downloader it would like to connect to.
-    UidRequest    Packet = 0x03
+    UidRequest    Tag = 0x03
 
     // PeerNotFound is sent from the puncher to the uploader to indicate that
     // the requested peer (identified by its uid) could not be found.
-    PeerNotFound  Packet = 0x04
+    PeerNotFound  Tag = 0x04
 
     // PeerReady is sent from the puncher to the uploader to indicate that the
     // requested peer (identified by its uid) was found and is ready for further
     // communication. The body contains the external IP address of the peer.
-    PeerReady     Packet = 0x05
+    PeerReady     Tag = 0x05
 
     // UploaderReady is sent from the puncher to the downloader to indicate that
     // the uploader is ready to send files.
-    UploaderReady Packet = 0x06
+    UploaderReady Tag = 0x06
 
     // FileName is sent from the uploader to the downloader indicating the name
     // of the file about to be sent.
-    FileName      Packet = 0x07
+    FileName      Tag = 0x07
 
     // FileSize is sent from the uploader to the downloader indicating the size
     // of the file about to be sent.
-    FileSize      Packet = 0x08
+    FileSize      Tag = 0x08
 
     // FileHash is sent from the uploader to the downloader indicating the hash
     // of the file about to be sent.
-    FileHash      Packet = 0x09
+    FileHash      Tag = 0x09
 
-    HashMatch     Packet = 0x0A
+    HashMatch     Tag = 0x0A
 
-    HashMismatch  Packet = 0x0B
+    HashMismatch  Tag = 0x0B
 
     // Error is sent from any peer to another indicating that the sender
     // of this message encountered an error, at the fault of either endpoint.
     // The body contains a string describing the issue.
-    Error         Packet = 0x0C
+    Error         Tag = 0x0C
 
     // Halt is sent from any peer to another indicating that all current
     // connections should be closed and that no future communications will take
     // place. The body contains a message describing the reason.
-    Halt          Packet = 0x0D
+    Halt          Tag = 0x0D
 
     // Version is sent from one peer to another indicating the version of
     // itself. The body contains the version number.
-    Version       Packet = 0x0E
+    Version       Tag = 0x0E
 
     // Compatible is sent from one peer to another indicating that it thinks
     // that it is compatible with the peer.
-    Compatible    Packet = 0x0F
+    Compatible    Tag = 0x0F
 
     // Incompatible is sent from one peer to another indicating that it thinks
     // that it is incompatible with the peer.
-    Incompatible  Packet = 0x10
+    Incompatible  Tag = 0x10
 )
 
 var (
@@ -111,33 +111,42 @@ var (
     }
 )
 
-// Message is a message from one endpoint to another with a packet and body.
-// Some messages may be bodiless, where body will therefore be nil.
 type Message struct {
-    // Packet is the Packet that describes the body, if present.
-    Packet Packet
-
-    // Body is the bytes that the packet describes. May be nil if bodiless.
-    Body   []byte
+    Tag    Tag
+    Length uint16
+    Value  []byte
 }
 
-func (m Message) MarshalBinary() (data []byte, err error) {
-    var buff bytes.Buffer
+func (m *Message) MarshalBinary() (data []byte, err error) {
+    buff := bytes.NewBuffer(make([]byte, 3 + m.Length))
 
-    buff.WriteByte(byte(m.Packet))
+    err = buff.WriteByte(byte(m.Tag))
 
-    if ! isBodiless(m.Packet) {
-        if _, fixed := fixedLengthPackets[m.Packet]; ! fixed {
-            bodyLen := len(m.Body)
+    if err != nil {
+        return
+    }
 
-            if bodyLen > 0xFF {
-                return nil, fmt.Errorf("length of body cannot fit in 1 byte (got %d bytes)", bodyLen)
-            }
+    lenBuff := bytes.NewBuffer(make([]byte, 2))
+    binary.BigEndian.PutUint16(lenBuff, m.Length)
 
-            buff.WriteByte(byte(len(m.Body)))
-        }
+    n, err := buff.Write(lenBuff)
 
-        buff.Write(m.Body)
+    if err != nil {
+        return
+    }
+
+    if n != cap(lenBuff) {
+        return nil, fmt.Errorf("Expected %d byte length, got %d", cap(lenBuff), n)
+    }
+
+    n, err = buff.Write(m.Value)
+
+    if err != nil {
+        return
+    }
+
+    if n != int(m.Length) {
+        return nil, fmt.Errorf("Expected %d bytes, got %d", m.Length, n)
     }
 
     return buff.Bytes(), nil
