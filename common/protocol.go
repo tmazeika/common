@@ -97,15 +97,16 @@ type Message struct {
 }
 
 func (m *Message) MarshalBinary() (data []byte, err error) {
-    buff := bytes.NewBuffer(make([]byte, 3 + m.Length))
+    const PreValueLen = 3
+    const SizeUint16  = 2
 
-    err = buff.WriteByte(byte(m.Tag))
+    buff := bytes.NewBuffer(make([]byte, PreValueLen + m.Length))
 
-    if err != nil {
+    if err = buff.WriteByte(byte(m.Tag)); err != nil {
         return
     }
 
-    lenBuff := bytes.NewBuffer(make([]byte, 2))
+    lenBuff := bytes.NewBuffer(make([]byte, SizeUint16))
     binary.BigEndian.PutUint16(lenBuff, m.Length)
 
     n, err := buff.Write(lenBuff)
