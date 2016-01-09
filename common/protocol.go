@@ -2,15 +2,14 @@ package common
 
 import "crypto/sha256"
 
-// Client types.
+// Remote types.
 const (
-    Downloader byte = 0x00
-
-    Uploader   byte = 0x01
+    RemoteDownloader = 0
+    RemoteUploader   = 1
 )
 
 type FileInfoMessage struct {
     Name string
-    Size uint
+    Size int64
     Hash [sha256.Size]byte
 }
