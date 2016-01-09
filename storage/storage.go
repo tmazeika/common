@@ -2,15 +2,48 @@ package storage
 
 import (
     "os"
-    "crypto/tls"
-    "fmt"
     "io/ioutil"
     "path/filepath"
     "encoding/json"
     "os/user"
 )
 
-type Config map[string]string
+type Config map[string]interface{}
+
+func (c *Config) load(path string) error {
+    file, err := c.file(path)
+
+    if err != nil {
+        return err
+    }
+
+    defer file.Close()
+    return json.NewDecoder(file).Decode(c)
+}
+
+func (c Config) save(path string) error {
+    const Mode = 0644
+
+    data, err := json.MarshalIndent(&c, "", "  ")
+
+    if err != nil {
+        return err
+    }
+
+    return ioutil.WriteFile(path, data, Mode)
+}
+
+func (c Config) file(path string) (*os.File, error) {
+    if ! fileExists(path) {
+        err := c.save(path)
+
+        if err != nil {
+            return err
+        }
+    }
+
+    return os.Open(path)
+}
 
 type Storage struct {
     AppDir string
@@ -27,14 +60,32 @@ type Storage struct {
 // - the directory at `appDir` will be created if it doesn't exist, along with
 //   its parents
 // - files will be stored in the directory at `appDir`
-func New(appDir string) (*Storage, error) {
-    s := new(Storage)
-    return s, s.createAppDir(appDir)
+func New(appDir string, defConf Config) (*Storage, error) {
+    s := Storage{
+        config: defConf,
+    }
+
+    return &s, s.createAppDir(appDir)
+}
+
+func (s *Storage) Config() (Config, error) {
+    const (
+        Mode = 0644
+        Name = "config.json"
+    )
+
+    err := s.config.load(filepath.Join(s.AppDir, Name))
+
+    if err != nil {
+        return err
+    }
+
+    return s.config, nil
 }
 
 func (s *Storage) createAppDir(path string) error {
     const (
-        Perm = 0700
+        Mode = 0700
         DefName = ".transhift"
     )
 
@@ -54,92 +105,62 @@ func (s *Storage) createAppDir(path string) error {
         return nil
     }
 
-    return os.MkdirAll(s.AppDir, Perm)
+    return os.MkdirAll(s.AppDir, Mode)
 }
 
-func (s Storage) configFile() (*os.File, error) {
-    const FileName = "config.json"
-    dir, err := s.dir()
+func (s *Storage) file(name string, mode os.FileMode) (file *os.File, err error) {
+    path := filepath.Join(s.AppDir, name)
 
-    if err != nil {
-        return nil, err
-    }
-
-    filePath := filepath.Join(dir, FileName)
-
-    if ! fileExists(filePath) {
-        data, err := json.MarshalIndent(&s.Config, "", "  ")
-
-        if err != nil {
-            return nil, err
-        }
-
-        err = ioutil.WriteFile(filePath, data, 0644)
-
-        if err != nil {
-            return nil, err
-        }
-    }
-
-    return getFile(filePath)
-}
-
-func (s *Storage) LoadConfig() error {
-    file, err := s.configFile()
-
-    if err != nil {
-        return err
-    }
-
-    defer file.Close()
-
-    return json.NewDecoder(file).Decode(&s.Config)
-}
-
-func (s Storage) Certificate(certFileName, keyFileName string) (tls.Certificate, error) {
-    dir, err := s.dir()
-
-    if err != nil {
-        return tls.Certificate{}, err
-    }
-
-    certFilePath := filepath.Join(dir, certFileName)
-    keyFilePath := filepath.Join(dir, keyFileName)
-
-    if ! fileExists(certFilePath) || ! fileExists(keyFilePath) {
-        fmt.Print("Generating crypto... ")
-
-        keyData, certData, err := createCertificate()
-
-        if err != nil {
-            return tls.Certificate{}, err
-        }
-
-        err = ioutil.WriteFile(certFilePath, certData, 0600)
-
-        if err != nil {
-            return tls.Certificate{}, err
-        }
-
-        err = ioutil.WriteFile(keyFilePath, keyData, 0600)
-
-        if err != nil {
-            return tls.Certificate{}, err
-        }
-
-        fmt.Println("done")
-    }
-
-    return tls.LoadX509KeyPair(certFilePath, keyFilePath)
-}
-
-func getFile(path string) (*os.File, error) {
     if fileExists(path) {
-        return os.Open(path)
+        return os.Open(path), nil
     }
 
-    return os.Create(path)
+    file, err = os.Create(path)
+
+    if err != nil {
+        return
+    }
+
+    err = file.Chmod(mode)
+    return
 }
+
+//func (s Storage) Certificate(certFileName, keyFileName string) (tls.Certificate, error) {
+//    dir, err := s.dir()
+//
+//    if err != nil {
+//        return tls.Certificate{}, err
+//    }
+//
+//    certFilePath := filepath.Join(dir, certFileName)
+//    keyFilePath := filepath.Join(dir, keyFileName)
+//
+//    if ! fileExists(certFilePath) || ! fileExists(keyFilePath) {
+//        fmt.Print("Generating crypto... ")
+//
+//        keyData, certData, err := createCertificate()
+//
+//        if err != nil {
+//            return tls.Certificate{}, err
+//        }
+//
+//        err = ioutil.WriteFile(certFilePath, certData, 0600)
+//
+//        if err != nil {
+//            return tls.Certificate{}, err
+//        }
+//
+//        err = ioutil.WriteFile(keyFilePath, keyData, 0600)
+//
+//        if err != nil {
+//            return tls.Certificate{}, err
+//        }
+//
+//        fmt.Println("done")
+//    }
+//
+//    return tls.LoadX509KeyPair(certFilePath, keyFilePath)
+//}
 
 func exists(path string, dir bool) bool {
     info, err := os.Stat(path)
