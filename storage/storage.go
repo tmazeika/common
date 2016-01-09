@@ -32,13 +32,13 @@ func New(appDir string) (*Storage, error) {
     return s, s.createAppDir(appDir)
 }
 
-func (s *Storage) createAppDir(appDir string) error {
+func (s *Storage) createAppDir(path string) error {
     const (
         Perm = 0700
         DefName = ".transhift"
     )
 
-    if len(s.AppDir) == 0 {
+    if len(path) == 0 {
         user, err := user.Current()
 
         if err != nil {
@@ -46,6 +46,8 @@ func (s *Storage) createAppDir(appDir string) error {
         }
 
         s.AppDir = filepath.Join(user.HomeDir, DefName)
+    } else {
+        s.AppDir = path
     }
 
     if dirExists(s.AppDir) {
