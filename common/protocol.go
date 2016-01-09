@@ -7,21 +7,6 @@ import (
     "encoding/binary"
 )
 
-type MessageCh struct {
-    Ch  chan Message
-    Err error
-}
-
-type In struct {
-    MessageCh
-}
-
-type Out struct {
-    MessageCh
-
-    Done chan int
-}
-
 type Tag byte
 
 // TODO: protocol docs
