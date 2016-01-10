@@ -8,42 +8,9 @@ import (
     "os/user"
 )
 
+const ConfigMode = 0644
+
 type Config map[string]interface{}
-
-func (c *Config) load(path string) error {
-    file, err := c.file(path)
-
-    if err != nil {
-        return err
-    }
-
-    defer file.Close()
-    return json.NewDecoder(file).Decode(c)
-}
-
-func (c Config) save(path string) error {
-    const Mode = 0644
-
-    data, err := json.MarshalIndent(&c, "", "  ")
-
-    if err != nil {
-        return err
-    }
-
-    return ioutil.WriteFile(path, data, Mode)
-}
-
-func (c Config) file(path string) (*os.File, error) {
-    if ! fileExists(path) {
-        err := c.save(path)
-
-        if err != nil {
-            return err
-        }
-    }
-
-    return os.Open(path)
-}
 
 type Storage struct {
     AppDir string
@@ -69,18 +36,42 @@ func New(appDir string, defConf Config) (*Storage, error) {
 }
 
 func (s *Storage) Config() (Config, error) {
-    const (
-        Mode = 0644
-        Name = "config.json"
-    )
+    const Name = "config.json"
 
-    err := s.config.load(filepath.Join(s.AppDir, Name))
+    if err := s.loadConfig(Name); err != nil {
+        return err
+    }
+
+    return s.config, nil
+}
+
+func (s *Storage) loadConfig(name string) error {
+    if ! s.fileExists(name) {
+        err := s.saveConfig(name)
+
+        if err != nil {
+            return err
+        }
+    }
+
+    file, err := s.file(name, ConfigMode)
 
     if err != nil {
         return err
     }
 
-    return s.config, nil
+    defer file.Close()
+    return json.NewDecoder(file).Decode(&s.config)
+}
+
+func (s *Storage) saveConfig(name string) error {
+    data, err := json.MarshalIndent(&s.config, "", "  ")
+
+    if err != nil {
+        return err
+    }
+
+    return ioutil.WriteFile(s.filePath(name), data, ConfigMode)
 }
 
 func (s *Storage) createAppDir(path string) error {
@@ -108,9 +99,19 @@ func (s *Storage) createAppDir(path string) error {
     return os.MkdirAll(s.AppDir, Mode)
 }
 
-func (s *Storage) file(name string, mode os.FileMode) (file *os.File, err error) {
-    path := filepath.Join(s.AppDir, name)
+func (s Storage) file(name string, mode os.FileMode) (*os.File, error) {
+    return file(s.filePath(name), mode)
+}
 
+func (s Storage) fileExists(name string) bool {
+    return fileExists(s.filePath(name))
+}
+
+func (s Storage) filePath(name string) string {
+    return filepath.Join(s.AppDir, name)
+}
+
+func file(path string, mode os.FileMode) (file *os.File, err error) {
     if fileExists(path) {
         return os.Open(path), nil
     }
