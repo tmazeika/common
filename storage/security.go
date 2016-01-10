@@ -16,17 +16,23 @@ const (
 	CertMode = 0600
 )
 
-func (s storage) Certificate(keyName, certName string) (tls.Certificate, error) {
+func (s storage) Certificate(keyName, certName string) (*tls.Certificate, error) {
 	keyPath := s.filePath(keyName)
 	certPath := s.filePath(certName)
 
 	if ! fileExists(keyPath) || ! fileExists(certPath) {
 		if err := saveNewCertificate(keyPath, certPath); err != nil {
-			return tls.Certificate{}, err
+			return nil, err
 		}
 	}
 
-	return tls.LoadX509KeyPair(certPath, keyPath)
+	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &cert, nil
 }
 
 func saveNewCertificate(keyPath, certPath string) error {
