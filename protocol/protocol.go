@@ -14,6 +14,7 @@ const (
 // Signals.
 const (
     ExitSignal Signal = iota
+    OkaySignal
 )
 
 type FileInfoMessage struct {
