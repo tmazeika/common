@@ -2,9 +2,8 @@ package protocol
 
 import "encoding/gob"
 
-func SignalChannel(dec *gob.Decoder) (<-chan Signal) {
+func SignalChannel(dec *gob.Decoder) <-chan Signal {
 	ch := make(chan Signal)
-	errCh := make(chan error)
 
 	go func() {
 		var sig Signal
@@ -18,5 +17,5 @@ func SignalChannel(dec *gob.Decoder) (<-chan Signal) {
 		ch <- sig
 	}()
 
-	return ch, errCh
+	return ch
 }

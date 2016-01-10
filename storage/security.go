@@ -1,14 +1,14 @@
 package storage
 
 import (
-	"crypto/tls"
-	"crypto/rsa"
 	"crypto/rand"
+	"crypto/rsa"
+	"crypto/tls"
 	"crypto/x509"
-	"math/big"
-	"time"
 	"encoding/pem"
 	"io/ioutil"
+	"math/big"
+	"time"
 )
 
 const (
@@ -20,7 +20,7 @@ func (s storage) Certificate(keyName, certName string) (*tls.Certificate, error)
 	keyPath := s.filePath(keyName)
 	certPath := s.filePath(certName)
 
-	if ! fileExists(keyPath) || ! fileExists(certPath) {
+	if !fileExists(keyPath) || !fileExists(certPath) {
 		if err := saveNewCertificate(keyPath, certPath); err != nil {
 			return nil, err
 		}
@@ -68,9 +68,9 @@ func createCertificate() (keyData []byte, certData []byte, err error) {
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(1000, 0, 0),
 		BasicConstraintsValid: true,
-		IsCA:                  true,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
-		KeyUsage: x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+		IsCA:        true,
+		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		KeyUsage:    x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
 	}
 	certData, err = x509.CreateCertificate(rand.Reader, ca, ca, &key.PublicKey, key)
 
@@ -79,12 +79,12 @@ func createCertificate() (keyData []byte, certData []byte, err error) {
 	}
 
 	keyData = pem.EncodeToMemory(&pem.Block{
-		Type: "RSA PRIVATE KEY",
+		Type:  "RSA PRIVATE KEY",
 		Bytes: keyData,
 	})
 
 	certData = pem.EncodeToMemory(&pem.Block{
-		Type: "CERTIFICATE",
+		Type:  "CERTIFICATE",
 		Bytes: certData,
 	})
 
