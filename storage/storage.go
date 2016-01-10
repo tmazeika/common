@@ -126,43 +126,6 @@ func file(path string, mode os.FileMode) (file *os.File, err error) {
     return
 }
 
-//func (s Storage) Certificate(certFileName, keyFileName string) (tls.Certificate, error) {
-//    dir, err := s.dir()
-//
-//    if err != nil {
-//        return tls.Certificate{}, err
-//    }
-//
-//    certFilePath := filepath.Join(dir, certFileName)
-//    keyFilePath := filepath.Join(dir, keyFileName)
-//
-//    if ! fileExists(certFilePath) || ! fileExists(keyFilePath) {
-//        fmt.Print("Generating crypto... ")
-//
-//        keyData, certData, err := createCertificate()
-//
-//        if err != nil {
-//            return tls.Certificate{}, err
-//        }
-//
-//        err = ioutil.WriteFile(certFilePath, certData, 0600)
-//
-//        if err != nil {
-//            return tls.Certificate{}, err
-//        }
-//
-//        err = ioutil.WriteFile(keyFilePath, keyData, 0600)
-//
-//        if err != nil {
-//            return tls.Certificate{}, err
-//        }
-//
-//        fmt.Println("done")
-//    }
-//
-//    return tls.LoadX509KeyPair(certFilePath, keyFilePath)
-//}
-
 func exists(path string, dir bool) bool {
     info, err := os.Stat(path)
 
