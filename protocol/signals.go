@@ -6,6 +6,8 @@ func SignalChannel(dec *gob.Decoder) <-chan Signal {
 	ch := make(chan Signal)
 
 	go func() {
+		defer close(ch)
+
 		var sig Signal
 		err := dec.Decode(&sig)
 
