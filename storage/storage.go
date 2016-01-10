@@ -8,7 +8,7 @@ import (
     "os/user"
 )
 
-const ConfigMode os.FileMode = 0644
+const ConfigMode = 0644
 
 type Config map[string]interface{}
 
