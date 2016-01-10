@@ -39,7 +39,7 @@ func (s *storage) Config() (Config, error) {
     const Name = "config.json"
 
     if err := s.loadConfig(Name); err != nil {
-        return err
+        return nil, err
     }
 
     return s.config, nil
@@ -113,7 +113,7 @@ func (s storage) filePath(name string) string {
 
 func file(path string, mode os.FileMode) (file *os.File, err error) {
     if fileExists(path) {
-        return os.Open(path), nil
+        return os.Open(path)
     }
 
     file, err = os.Create(path)

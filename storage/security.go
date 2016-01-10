@@ -33,7 +33,7 @@ func saveNewCertificate(keyPath, certPath string) error {
 	keyData, certData, err := createCertificate()
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	err = ioutil.WriteFile(keyPath, keyData, KeyMode)

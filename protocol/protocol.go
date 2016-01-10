@@ -2,12 +2,12 @@ package protocol
 
 import "crypto/sha256"
 
-type ClientType uint8
+type ClientType int
 
 // Client types.
 const (
-    ClientDownloader ClientType = iota
-    ClientUploader
+    TargetClient ClientType = iota
+    SourceClient
 )
 
 type FileInfoMessage struct {
