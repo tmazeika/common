@@ -12,7 +12,7 @@ const ConfigMode = 0644
 
 type Config map[string]interface{}
 
-type Storage struct {
+type storage struct {
     AppDir string
     config Config
 }
@@ -27,15 +27,15 @@ type Storage struct {
 // - the directory at `appDir` will be created if it doesn't exist, along with
 //   its parents
 // - files will be stored in the directory at `appDir`
-func New(appDir string, defConf Config) (*Storage, error) {
-    s := Storage{
+func New(appDir string, defConf Config) (*storage, error) {
+    s := storage{
         config: defConf,
     }
 
     return &s, s.createAppDir(appDir)
 }
 
-func (s *Storage) Config() (Config, error) {
+func (s *storage) Config() (Config, error) {
     const Name = "config.json"
 
     if err := s.loadConfig(Name); err != nil {
@@ -45,7 +45,7 @@ func (s *Storage) Config() (Config, error) {
     return s.config, nil
 }
 
-func (s *Storage) loadConfig(name string) error {
+func (s *storage) loadConfig(name string) error {
     if ! s.fileExists(name) {
         err := s.saveConfig(name)
 
@@ -64,7 +64,7 @@ func (s *Storage) loadConfig(name string) error {
     return json.NewDecoder(file).Decode(&s.config)
 }
 
-func (s *Storage) saveConfig(name string) error {
+func (s *storage) saveConfig(name string) error {
     data, err := json.MarshalIndent(&s.config, "", "  ")
 
     if err != nil {
@@ -74,7 +74,7 @@ func (s *Storage) saveConfig(name string) error {
     return ioutil.WriteFile(s.filePath(name), data, ConfigMode)
 }
 
-func (s *Storage) createAppDir(path string) error {
+func (s *storage) createAppDir(path string) error {
     const (
         Mode = 0700
         DefName = ".transhift"
@@ -99,15 +99,15 @@ func (s *Storage) createAppDir(path string) error {
     return os.MkdirAll(s.AppDir, Mode)
 }
 
-func (s Storage) file(name string, mode os.FileMode) (*os.File, error) {
+func (s storage) file(name string, mode os.FileMode) (*os.File, error) {
     return file(s.filePath(name), mode)
 }
 
-func (s Storage) fileExists(name string) bool {
+func (s storage) fileExists(name string) bool {
     return fileExists(s.filePath(name))
 }
 
-func (s Storage) filePath(name string) string {
+func (s storage) filePath(name string) string {
     return filepath.Join(s.AppDir, name)
 }
 

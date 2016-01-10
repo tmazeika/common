@@ -2,10 +2,12 @@ package protocol
 
 import "crypto/sha256"
 
-// Remote types.
+type ClientType uint8
+
+// Client types.
 const (
-    RemoteDownloader = 0
-    RemoteUploader   = 1
+    ClientDownloader ClientType = iota
+    ClientUploader
 )
 
 type FileInfoMessage struct {

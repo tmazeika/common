@@ -16,7 +16,7 @@ const (
 	CertMode = 0600
 )
 
-func (s Storage) Certificate(keyName, certName string) (tls.Certificate, error) {
+func (s storage) Certificate(keyName, certName string) (tls.Certificate, error) {
 	keyPath := s.filePath(keyName)
 	certPath := s.filePath(certName)
 
