@@ -5,14 +5,14 @@ import (
 	"fmt"
 )
 
-func Inbound(dec *gob.Decoder) (<-chan Signal, <-chan struct{}, <-chan error) {
-	sigCh := make(chan Signal)
-	typedCh := make(chan struct{})
+func Inbound(dec *gob.Decoder) (exit <-chan struct{}, msg <-chan struct{}, err <-chan error) {
+	exitCh := make(chan struct{})
+	msgCh := make(chan struct{})
 	errCh := make(chan error)
 
 	go func() {
-		defer close(sigCh)
-		defer close(typedCh)
+		defer close(exitCh)
+		defer close(msgCh)
 		defer close(errCh)
 
 		var inType InboundType
@@ -22,19 +22,14 @@ func Inbound(dec *gob.Decoder) (<-chan Signal, <-chan struct{}, <-chan error) {
 		}
 
 		switch inType {
-		case SignalInbound:
-			var sig Signal
-			if err := dec.Decode(&sig); err != nil {
-				errCh <- err
-				return
-			}
-			sigCh <- sig
-		case TypedInbound:
-			typedCh <- struct{}{}
+		case MessageInbound:
+			msgCh <- struct{}{}
+		case ExitInbound:
+			exitCh <- struct{}{}
 		default:
 			errCh <- fmt.Errorf("unknown InboundType 0x%x", inType)
 		}
 	}()
 
-	return sigCh, typedCh, errCh
+	return exitCh, msgCh, errCh
 }
