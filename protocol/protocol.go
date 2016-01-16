@@ -1,11 +1,26 @@
 package protocol
 
-type NodeType int
+type NodeType byte
 
 // NodeType enum.
 const (
-	TargetNode = 0
-	SourceNode = 1
+	TargetNode NodeType = 0x00
+	SourceNode NodeType = 0x01
+)
+
+type Signal byte
+
+// Signal enum.
+const (
+	ExitSignal Signal = 0x00
+)
+
+type InboundType byte
+
+// InboundType enum.
+const (
+	SignalInbound InboundType = 0x00
+	TypedInbound  InboundType = 0x01
 )
 
 type FileInfo struct {
