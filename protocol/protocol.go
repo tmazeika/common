@@ -4,8 +4,8 @@ type NodeType int
 
 // NodeType enum.
 const (
-	TargetNode NodeType = 0
-	SourceNode NodeType = 1
+	TargetNode = 0
+	SourceNode = 1
 )
 
 type InboundType int
