@@ -13,7 +13,7 @@ const ConfigMode = 0644
 
 type Storage interface {
 	Config() (interface{}, error)
-	Certificate(string, string) (*tls.Certificate, error)
+	Certificate(keyName, certName string) (*tls.Certificate, error)
 }
 
 type storage struct {
