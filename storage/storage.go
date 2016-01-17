@@ -10,6 +10,10 @@ import (
 
 const ConfigMode = 0644
 
+type Storage interface {
+	Config() (interface{}, error)
+}
+
 type storage struct {
 	AppDir string
 	config interface{}
