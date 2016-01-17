@@ -8,6 +8,14 @@ const (
 	SourceNode = 1
 )
 
+type Signal int
+
+// Signal enum.
+const (
+	TargetNotFoundSignal = 0
+	OkaySignal           = 1
+)
+
 type FileInfo struct {
 	Name string
 	Size uint64
