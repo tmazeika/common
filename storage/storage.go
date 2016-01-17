@@ -10,11 +10,9 @@ import (
 
 const ConfigMode = 0644
 
-type Config map[string]interface{}
-
 type storage struct {
 	AppDir string
-	config Config
+	config interface{}
 }
 
 // New creates a Storage struct with the given application directory.
@@ -27,7 +25,7 @@ type storage struct {
 // - the directory at `appDir` will be created if it doesn't exist, along with
 //   its parents
 // - files will be stored in the directory at `appDir`
-func New(appDir string, defConf Config) (*storage, error) {
+func New(appDir string, defConf interface{}) (*storage, error) {
 	s := storage{
 		config: defConf,
 	}
@@ -35,7 +33,7 @@ func New(appDir string, defConf Config) (*storage, error) {
 	return &s, s.createAppDir(appDir)
 }
 
-func (s *storage) Config() (Config, error) {
+func (s *storage) Config() (interface{}, error) {
 	const Name = "config.json"
 
 	if err := s.loadConfig(Name); err != nil {
