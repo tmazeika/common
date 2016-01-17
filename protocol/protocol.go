@@ -18,6 +18,6 @@ const (
 
 type FileInfo struct {
 	Name string
-	Size uint64
+	Size int64
 	Hash []byte
 }
