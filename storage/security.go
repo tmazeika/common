@@ -1,5 +1,6 @@
 package storage
 
+/*
 import (
 	"crypto/rand"
 	"crypto/rsa"
@@ -90,3 +91,4 @@ func createCertificate() (keyData []byte, certData []byte, err error) {
 
 	return
 }
+*/
