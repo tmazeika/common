@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func Certificate(keyName, certName string, dir appdir.AppDir) (cert tls.Certificate, err error) {
+func Certificate(keyName, certName string, dir *appdir.AppDir) (cert tls.Certificate, err error) {
 	const FileMode = 0600
 
 	var privKey *rsa.PrivateKey
